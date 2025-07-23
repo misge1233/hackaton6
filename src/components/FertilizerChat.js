@@ -4,7 +4,8 @@ import './FertilizerChat.css';
 import { MapContainer, TileLayer, Marker, Rectangle, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 
-const GROQ_API_KEY = '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';
+// Use environment variable for Groq API key
+const GROQ_API_KEY = process.env.REACT_APP_GROQ_API_KEY; // Set this in your .env file
 
 function FertilizerChat() {
     const [messages, setMessages] = useState([]);
