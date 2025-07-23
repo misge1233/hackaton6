@@ -1,0 +1,131 @@
+.flood-card {
+    border: none;
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.flood-header {
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    padding: 1.5rem;
+}
+
+.flood-header h3 {
+    margin: 0;
+    font-weight: 600;
+}
+
+.flood-results {
+    margin-top: 2rem;
+}
+
+.risk-assessment-card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: 100%;
+}
+
+.risk-assessment-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.location-text {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+}
+
+.risk-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.risk-badge {
+    font-size: 1rem;
+    padding: 0.5rem 1rem;
+    border-radius: 25px;
+}
+
+.warnings-card,
+.recommendations-card,
+.forecast-card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    margin-top: 1.5rem;
+}
+
+.warnings-list,
+.recommendations-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.warning-item,
+.recommendation-item {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #e9ecef;
+    color: #333;
+}
+
+.warning-item:last-child,
+.recommendation-item:last-child {
+    border-bottom: none;
+}
+
+.warning-item::before {
+    content: "🚨 ";
+    margin-right: 0.5rem;
+}
+
+.recommendation-item::before {
+    content: "💡 ";
+    margin-right: 0.5rem;
+}
+
+.forecast-item {
+    padding: 1rem;
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+    background: #f8f9fa;
+    transition: transform 0.3s ease;
+}
+
+.forecast-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.forecast-date {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+.forecast-risk {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 0.5rem;
+}
+
+.forecast-description {
+    font-size: 0.85rem;
+    color: #777;
+    line-height: 1.4;
+}
+
+.loading-spinner {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 200px;
+    color: #667eea;
+} 
