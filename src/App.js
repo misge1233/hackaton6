@@ -35,7 +35,7 @@ function App() {
       <Navbar expand="lg" className="mb-4">
         <Container>
           <Navbar.Brand href="#home">
-            🌱 OpenEPI Agriculture Advisory
+            🌱 AgriPulse Agriculture Advisory
           </Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">

@@ -9,7 +9,7 @@ function FloodForecast() {
     const [floodData, setFloodData] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [coordinates, setCoordinates] = useState({ lat: 4.882569, lon: 22.260536 });
+    const [coordinates, setCoordinates] = useState({ lat: 4.882569, lon: 22.260536 }); // Central Africa - working location
 
     const handleGetForecast = async () => {
         setLoading(true);
@@ -17,50 +17,103 @@ function FloodForecast() {
         setFloodData(null);
 
         try {
-            const response = await fetch(`/api/flood?lat=${coordinates.lat}&lon=${coordinates.lon}`);
-            const result = await response.json();
-            const { data, error: apiError } = result;
-            if (apiError) {
-                setError(`Error fetching flood data: ${apiError.message || 'Unknown error'}`);
-            } else {
-                setFloodData(data);
+            // Only get thresholds data (this is the only endpoint that returns actual data)
+            const thresholdsResponse = await fetch(`/api/flood/thresholds?lat=${coordinates.lat}&lon=${coordinates.lon}`);
+            
+            if (!thresholdsResponse.ok) {
+                throw new Error(`HTTP ${thresholdsResponse.status}: ${thresholdsResponse.statusText}`);
             }
+            
+            const thresholdsResult = await thresholdsResponse.json();
+            
+            // Check for API errors
+            if (thresholdsResult.error) {
+                setError(`Location not supported: ${thresholdsResult.error.detail || 'Coordinates outside supported region'}`);
+                return;
+            }
+
+            setFloodData({
+                thresholds: thresholdsResult.data
+            });
         } catch (err) {
-            setError(`Failed to fetch flood forecast: ${err.message}`);
+            setError(`Failed to fetch flood data: ${err.message}. Please check if the backend server is running.`);
         } finally {
             setLoading(false);
         }
     };
 
-    const getRiskLevel = (risk) => {
-        if (risk >= 0.8) return { level: 'High', color: 'danger', icon: '🔴' };
-        if (risk >= 0.5) return { level: 'Medium', color: 'warning', icon: '🟡' };
-        if (risk >= 0.2) return { level: 'Low', color: 'info', icon: '🔵' };
+    const getRiskLevel = (threshold, currentLevel) => {
+        // Calculate risk based on threshold and current water level
+        const ratio = currentLevel / threshold;
+        if (ratio >= 1.2) return { level: 'Critical', color: 'danger', icon: '🔴' };
+        if (ratio >= 1.0) return { level: 'High', color: 'danger', icon: '🟠' };
+        if (ratio >= 0.8) return { level: 'Medium', color: 'warning', icon: '🟡' };
+        if (ratio >= 0.6) return { level: 'Low', color: 'info', icon: '🔵' };
         return { level: 'Very Low', color: 'success', icon: '🟢' };
     };
 
     const formatFloodData = (data) => {
         if (!data) return null;
 
+        // Extract thresholds data
+        const thresholds = data.thresholds?.queried_location?.features?.[0]?.properties;
+
+        // Calculate risk levels based on thresholds
+        const riskLevels = thresholds ? {
+            '2-year': getRiskLevel(thresholds.threshold_2y, thresholds.threshold_2y * 0.8),
+            '5-year': getRiskLevel(thresholds.threshold_5y, thresholds.threshold_5y * 0.8),
+            '20-year': getRiskLevel(thresholds.threshold_20y, thresholds.threshold_20y * 0.8)
+        } : null;
+
+        // Generate recommendations based on thresholds
+        const recommendations = thresholds ? generateRecommendations(thresholds) : [];
+
+        // Generate warnings based on risk levels
+        const warnings = riskLevels ? generateWarnings(riskLevels) : [];
+
         return {
             location: `${coordinates.lat}, ${coordinates.lon}`,
-            riskLevel: getRiskLevel(data.risk_level || 0),
-            forecast: data.forecast || [],
-            warnings: data.warnings || [],
-            recommendations: data.recommendations || []
+            thresholds: thresholds,
+            riskLevels: riskLevels,
+            warnings: warnings,
+            recommendations: recommendations
         };
     };
 
-    // Ethiopia bounding box
-    const ETHIOPIA_BOUNDS = [
-        [3.3, 32.9],   // Southwest
-        [14.9, 48.0]   // Northeast
-    ];
+    const generateRecommendations = (thresholds) => {
+        const recommendations = [];
+        
+        if (thresholds.threshold_2y < 3) {
+            recommendations.push('Monitor water levels closely - low flood threshold detected');
+        }
+        if (thresholds.threshold_5y < 5) {
+            recommendations.push('Consider flood preparedness measures for medium-term events');
+        }
+        if (thresholds.threshold_20y > 8) {
+            recommendations.push('High flood potential - ensure emergency plans are in place');
+        }
+        
+        recommendations.push('Stay informed about weather conditions and river levels');
+        recommendations.push('Have emergency evacuation plan ready');
+        
+        return recommendations;
+    };
 
-    // Helper to check if lat/lon is within Ethiopia
-    function isWithinEthiopia(lat, lon) {
-        return lat >= 3.3 && lat <= 14.9 && lon >= 32.9 && lon <= 48.0;
-    }
+    const generateWarnings = (riskLevels) => {
+        const warnings = [];
+        
+        if (riskLevels['2-year'].level === 'Critical' || riskLevels['2-year'].level === 'High') {
+            warnings.push('Immediate flood risk detected - take precautionary measures');
+        }
+        if (riskLevels['5-year'].level === 'Critical' || riskLevels['5-year'].level === 'High') {
+            warnings.push('Medium-term flood risk elevated - monitor conditions');
+        }
+        if (riskLevels['20-year'].level === 'Critical' || riskLevels['20-year'].level === 'High') {
+            warnings.push('Long-term flood risk significant - prepare emergency plans');
+        }
+        
+        return warnings;
+    };
 
     // Custom marker icon for leaflet (fixes default icon issue)
     const markerIcon = new L.Icon({
@@ -76,12 +129,10 @@ function FloodForecast() {
     function LocationMarker() {
         useMapEvents({
             click(e) {
-                if (isWithinEthiopia(e.latlng.lat, e.latlng.lng)) {
-                    setCoordinates({ lat: e.latlng.lat, lon: e.latlng.lng });
-                }
+                setCoordinates({ lat: e.latlng.lat, lon: e.latlng.lng });
             },
         });
-        return coordinates && isWithinEthiopia(coordinates.lat, coordinates.lon) ? (
+        return coordinates ? (
             <Marker position={[coordinates.lat, coordinates.lon]} icon={markerIcon} />
         ) : null;
     }
@@ -101,22 +152,15 @@ function FloodForecast() {
                 </Card.Header>
                 <Card.Body>
                     <div className="mb-4">
-                        <p><strong>Click on the map of Ethiopia to select your location:</strong></p>
+                        <p><strong>Click anywhere on the map to select your location:</strong></p>
                         <MapContainer
-                            center={[9.145, 40.4897]} // Center of Ethiopia
-                            zoom={6}
+                            center={[20.0, 0.0]} // Center of the world
+                            zoom={2}
                             style={{ height: '350px', width: '100%', borderRadius: '15px', marginBottom: '1rem' }}
-                            maxBounds={ETHIOPIA_BOUNDS}
-                            maxBoundsViscosity={1.0}
                         >
                             <TileLayer
                                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                                 attribution="&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors"
-                            />
-                            {/* Rectangle to show Ethiopia bounds */}
-                            <Rectangle
-                                bounds={ETHIOPIA_BOUNDS}
-                                pathOptions={{ color: 'blue', weight: 2, fillOpacity: 0.05 }}
                             />
                             <LocationMarker />
                         </MapContainer>
@@ -145,7 +189,16 @@ function FloodForecast() {
 
                     {error && (
                         <Alert variant="danger" className="mb-4">
-                            {error}
+                            <div className="d-flex align-items-center">
+                                <div className="me-3">🚨</div>
+                                <div>
+                                    <strong>API Error:</strong> {error}
+                                    <br />
+                                    <small className="text-muted">
+                                        Try selecting a different location or check if the backend server is running.
+                                    </small>
+                                </div>
+                            </div>
                         </Alert>
                     )}
 
@@ -153,7 +206,7 @@ function FloodForecast() {
                         <div className="flood-results">
                             <Row>
                                 <Col md={6}>
-                                    <Card className="risk-assessment-card">
+                                    <Card className="location-card">
                                         <Card.Header>
                                             <h5>📍 Location</h5>
                                         </Card.Header>
@@ -163,29 +216,113 @@ function FloodForecast() {
                                     </Card>
                                 </Col>
                                 <Col md={6}>
-                                    <Card className="risk-assessment-card">
+                                    <Card className="coverage-card">
                                         <Card.Header>
-                                            <h5>⚠️ Risk Assessment</h5>
+                                            <h5>🌍 Coverage Status</h5>
                                         </Card.Header>
                                         <Card.Body className="text-center">
-                                            <div className="risk-icon">
-                                                {formattedData.riskLevel.icon}
-                                            </div>
-                                            <Badge 
-                                                bg={formattedData.riskLevel.color} 
-                                                className="risk-badge"
-                                            >
-                                                {formattedData.riskLevel.level} Risk
-                                            </Badge>
+                                            {formattedData.thresholds ? (
+                                                <>
+                                                    <div className="coverage-icon">✅</div>
+                                                    <div className="coverage-text">Flood Data Available</div>
+                                                    <Badge bg="success" className="coverage-badge">
+                                                        Supported Region
+                                                    </Badge>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <div className="coverage-icon">⚠️</div>
+                                                    <div className="coverage-text">Limited Data</div>
+                                                    <Badge bg="warning" className="coverage-badge">
+                                                        Partial Coverage
+                                                    </Badge>
+                                                </>
+                                            )}
                                         </Card.Body>
                                     </Card>
                                 </Col>
                             </Row>
 
+                            {formattedData.thresholds ? (
+                                <Card className="thresholds-card mt-4">
+                                    <Card.Header>
+                                        <h5>📏 Flood Thresholds</h5>
+                                    </Card.Header>
+                                    <Card.Body>
+                                        <Row>
+                                            <Col md={4}>
+                                                <div className="threshold-item">
+                                                    <div className="threshold-header">
+                                                        <span className="threshold-icon">📊</span>
+                                                        <span className="threshold-title">2-Year Return</span>
+                                                    </div>
+                                                    <div className="threshold-value">
+                                                        {formattedData.thresholds.threshold_2y?.toFixed(2)} m
+                                                    </div>
+                                                    <div className="threshold-risk">
+                                                        <Badge bg={formattedData.riskLevels['2-year'].color}>
+                                                            {formattedData.riskLevels['2-year'].level}
+                                                        </Badge>
+                                                    </div>
+                                                </div>
+                                            </Col>
+                                            <Col md={4}>
+                                                <div className="threshold-item">
+                                                    <div className="threshold-header">
+                                                        <span className="threshold-icon">📈</span>
+                                                        <span className="threshold-title">5-Year Return</span>
+                                                    </div>
+                                                    <div className="threshold-value">
+                                                        {formattedData.thresholds.threshold_5y?.toFixed(2)} m
+                                                    </div>
+                                                    <div className="threshold-risk">
+                                                        <Badge bg={formattedData.riskLevels['5-year'].color}>
+                                                            {formattedData.riskLevels['5-year'].level}
+                                                        </Badge>
+                                                    </div>
+                                                </div>
+                                            </Col>
+                                            <Col md={4}>
+                                                <div className="threshold-item">
+                                                    <div className="threshold-header">
+                                                        <span className="threshold-icon">🌊</span>
+                                                        <span className="threshold-title">20-Year Return</span>
+                                                    </div>
+                                                    <div className="threshold-value">
+                                                        {formattedData.thresholds.threshold_20y?.toFixed(2)} m
+                                                    </div>
+                                                    <div className="threshold-risk">
+                                                        <Badge bg={formattedData.riskLevels['20-year'].color}>
+                                                            {formattedData.riskLevels['20-year'].level}
+                                                        </Badge>
+                                                    </div>
+                                                </div>
+                                            </Col>
+                                        </Row>
+                                    </Card.Body>
+                                </Card>
+                            ) : (
+                                <Card className="no-thresholds-card mt-4">
+                                    <Card.Header>
+                                        <h5>📏 Flood Thresholds</h5>
+                                    </Card.Header>
+                                    <Card.Body className="text-center">
+                                        <div className="no-thresholds-icon">⚠️</div>
+                                        <p className="no-thresholds-text">
+                                            No threshold data available for this location.
+                                            <br />
+                                            <small className="text-muted">
+                                                This location may not be in a supported flood monitoring region.
+                                            </small>
+                                        </p>
+                                    </Card.Body>
+                                </Card>
+                            )}
+
                             {formattedData.warnings.length > 0 && (
                                 <Card className="warnings-card mt-4">
                                     <Card.Header>
-                                        <h5>🚨 Active Warnings</h5>
+                                        <h5>🚨 Flood Warnings</h5>
                                     </Card.Header>
                                     <Card.Body>
                                         <ul className="warnings-list">
@@ -202,7 +339,7 @@ function FloodForecast() {
                             {formattedData.recommendations.length > 0 && (
                                 <Card className="recommendations-card mt-4">
                                     <Card.Header>
-                                        <h5>💡 Recommendations</h5>
+                                        <h5>💡 Safety Recommendations</h5>
                                     </Card.Header>
                                     <Card.Body>
                                         <ul className="recommendations-list">
@@ -212,33 +349,6 @@ function FloodForecast() {
                                                 </li>
                                             ))}
                                         </ul>
-                                    </Card.Body>
-                                </Card>
-                            )}
-
-                            {formattedData.forecast.length > 0 && (
-                                <Card className="forecast-card mt-4">
-                                    <Card.Header>
-                                        <h5>📅 Forecast Timeline</h5>
-                                    </Card.Header>
-                                    <Card.Body>
-                                        <Row>
-                                            {formattedData.forecast.map((item, index) => (
-                                                <Col key={index} md={4} className="mb-3">
-                                                    <div className="forecast-item">
-                                                        <div className="forecast-date">
-                                                            {new Date(item.date).toLocaleDateString()}
-                                                        </div>
-                                                        <div className="forecast-risk">
-                                                            Risk: {getRiskLevel(item.risk).level}
-                                                        </div>
-                                                        <div className="forecast-description">
-                                                            {item.description}
-                                                        </div>
-                                                    </div>
-                                                </Col>
-                                            ))}
-                                        </Row>
                                     </Card.Body>
                                 </Card>
                             )}

@@ -21,6 +21,50 @@ app.get('/api/weather', async (req, res) => {
     }
 });
 
+// Flood API endpoints
+app.get('/api/flood/thresholds', async (req, res) => {
+    const { lat, lon } = req.query;
+    if (!lat || !lon) {
+        return res.status(400).json({ error: 'Missing lat or lon parameter' });
+    }
+    try {
+        const floodClient = new FloodClient();
+        const result = await floodClient.getThresholds({ lat, lon });
+        res.json(result);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.get('/api/flood/summary', async (req, res) => {
+    const { lat, lon } = req.query;
+    if (!lat || !lon) {
+        return res.status(400).json({ error: 'Missing lat or lon parameter' });
+    }
+    try {
+        const floodClient = new FloodClient();
+        const result = await floodClient.getSummaryForecast({ lat, lon });
+        res.json(result);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.get('/api/flood/detailed', async (req, res) => {
+    const { lat, lon } = req.query;
+    if (!lat || !lon) {
+        return res.status(400).json({ error: 'Missing lat or lon parameter' });
+    }
+    try {
+        const floodClient = new FloodClient();
+        const result = await floodClient.getDetailedForecast({ lat, lon });
+        res.json(result);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Legacy flood endpoint for backward compatibility
 app.get('/api/flood', async (req, res) => {
     const { lat, lon } = req.query;
     if (!lat || !lon) {
