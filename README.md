@@ -9,7 +9,7 @@ Smallholder farmers and agricultural stakeholders often lack timely, location-sp
 - **Frontend:** React 18, Bootstrap 5
 - **Styling:** Custom CSS (modern gradients, card layouts, responsive design)
 - **Mapping:** Leaflet.js for interactive maps
-- **APIs:** OpenEPI Client, Groq API, NextGen AgroAdvisory
+- **APIs:** OpenEPI Client, Groq API, Fertilizer recommendation
 - **AI:** Groq API for chatbot
 - **Backend:** Node.js (for API proxy/server)
 - **Build Tool:** Create React App
