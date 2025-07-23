@@ -1,0 +1,182 @@
+.soil-card {
+    border: none;
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.soil-header {
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    padding: 1.5rem;
+}
+
+.soil-header h3 {
+    margin: 0;
+    font-weight: 600;
+}
+
+.soil-results {
+    margin-top: 2rem;
+}
+
+.location-card,
+.soil-type-card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: 100%;
+}
+
+.location-card:hover,
+.soil-type-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.location-text {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+}
+
+.soil-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.soil-type-name {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #333;
+}
+
+.properties-card,
+.fertility-card,
+.suitability-card,
+.recommendations-card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    margin-top: 1.5rem;
+}
+
+.property-item {
+    text-align: center;
+    padding: 1rem;
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+    background: #f8f9fa;
+    transition: transform 0.3s ease;
+}
+
+.property-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.property-label {
+    font-size: 0.8rem;
+    color: #666;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.property-value {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #333;
+}
+
+.fertility-item {
+    text-align: center;
+    padding: 1rem;
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+    background: #f8f9fa;
+    transition: transform 0.3s ease;
+}
+
+.fertility-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.fertility-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.fertility-label {
+    font-size: 0.8rem;
+    color: #666;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.fertility-value {
+    margin-top: 0.5rem;
+}
+
+.crop-item {
+    text-align: center;
+    padding: 1rem;
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+    background: #f8f9fa;
+    transition: transform 0.3s ease;
+}
+
+.crop-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.crop-name {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+.crop-suitability {
+    margin-bottom: 0.5rem;
+}
+
+.crop-reason {
+    font-size: 0.8rem;
+    color: #666;
+    line-height: 1.3;
+}
+
+.recommendations-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.recommendation-item {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #e9ecef;
+    color: #333;
+}
+
+.recommendation-item:last-child {
+    border-bottom: none;
+}
+
+.recommendation-item::before {
+    content: "🌱 ";
+    margin-right: 0.5rem;
+}
+
+.loading-spinner {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 200px;
+    color: #667eea;
+} 
