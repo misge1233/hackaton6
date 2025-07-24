@@ -6,7 +6,7 @@
 }
 
 .flood-header {
-    background: linear-gradient(45deg, #667eea, #764ba2);
+    background: linear-gradient(45deg, #0066cc, #0099ff);
     color: white;
     border: none;
     padding: 1.5rem;
@@ -21,7 +21,8 @@
     margin-top: 2rem;
 }
 
-.risk-assessment-card {
+.location-card,
+.coverage-card {
     border: none;
     border-radius: 15px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
@@ -29,7 +30,8 @@
     height: 100%;
 }
 
-.risk-assessment-card:hover {
+.location-card:hover,
+.coverage-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
 }
@@ -41,24 +43,105 @@
     margin: 0;
 }
 
-.risk-icon {
+.coverage-icon {
     font-size: 3rem;
     margin-bottom: 1rem;
+    animation: pulse 2s infinite;
 }
 
-.risk-badge {
-    font-size: 1rem;
-    padding: 0.5rem 1rem;
-    border-radius: 25px;
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
 }
 
+.coverage-text {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+.coverage-badge {
+    font-size: 0.9rem;
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+}
+
+.thresholds-card,
 .warnings-card,
 .recommendations-card,
-.forecast-card {
+.no-thresholds-card {
     border: none;
     border-radius: 15px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
     margin-top: 1.5rem;
+}
+
+.threshold-item {
+    text-align: center;
+    padding: 1.5rem;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+.threshold-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(0, 102, 204, 0.1), transparent);
+    transition: left 0.5s;
+}
+
+.threshold-item:hover::before {
+    left: 100%;
+}
+
+.threshold-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 102, 204, 0.15);
+}
+
+.threshold-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+}
+
+.threshold-icon {
+    font-size: 1.5rem;
+    margin-right: 0.5rem;
+}
+
+.threshold-title {
+    font-weight: 600;
+    color: #333;
+    font-size: 0.9rem;
+}
+
+.threshold-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #0066cc;
+    margin-bottom: 1rem;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+    background: linear-gradient(45deg, #0066cc, #0099ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.threshold-risk {
+    margin-top: 0.5rem;
 }
 
 .warnings-list,
@@ -83,42 +166,23 @@
 .warning-item::before {
     content: "🚨 ";
     margin-right: 0.5rem;
+    animation: blink 1.5s infinite;
 }
 
 .recommendation-item::before {
     content: "💡 ";
     margin-right: 0.5rem;
+    animation: glow 2s ease-in-out infinite alternate;
 }
 
-.forecast-item {
-    padding: 1rem;
-    border: 1px solid #e9ecef;
-    border-radius: 10px;
-    background: #f8f9fa;
-    transition: transform 0.3s ease;
+@keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0.3; }
 }
 
-.forecast-item:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-}
-
-.forecast-date {
-    font-weight: 600;
-    color: #333;
-    margin-bottom: 0.5rem;
-}
-
-.forecast-risk {
-    font-size: 0.9rem;
-    color: #666;
-    margin-bottom: 0.5rem;
-}
-
-.forecast-description {
-    font-size: 0.85rem;
-    color: #777;
-    line-height: 1.4;
+@keyframes glow {
+    from { text-shadow: 0 0 5px rgba(255, 193, 7, 0.5); }
+    to { text-shadow: 0 0 10px rgba(255, 193, 7, 0.8); }
 }
 
 .loading-spinner {
@@ -127,5 +191,23 @@
     justify-content: center;
     align-items: center;
     height: 200px;
-    color: #667eea;
+    color: #0066cc;
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.no-thresholds-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: #ffc107;
+}
+
+.no-thresholds-text {
+    color: #666;
+    font-size: 1rem;
+    line-height: 1.5;
 } 
