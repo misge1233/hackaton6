@@ -233,4 +233,12 @@
     align-items: center;
     height: 200px;
     color: #8B4513;
+}
+
+.selected-coords {
+    color: #888;
+    font-size: 0.95rem;
+    margin-top: 0.25rem;
+    margin-bottom: 1rem;
+    text-align: left;
 } 

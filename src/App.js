@@ -9,6 +9,7 @@ import WeatherForecast from './components/WeatherForecast';
 import DeforestationInfo from './components/DeforestationInfo';
 import FloodForecast from './components/FloodForecast';
 import SoilType from './components/SoilType';
+import CropHealthy from './components/CropHealthy';
 
 function App() {
   const [activeTab, setActiveTab] = useState('fertilizer');
@@ -25,6 +26,8 @@ function App() {
         return <FloodForecast />;
       case 'soil':
         return <SoilType />;
+      case 'crophealth':
+        return <CropHealthy />;
       default:
         return <FertilizerChat />;
     }
@@ -35,7 +38,7 @@ function App() {
       <Navbar expand="lg" className="mb-4">
         <Container>
           <Navbar.Brand href="#home">
-            🌱 AgriPulse Agriculture Advisory
+            AgriPulse Agriculture Advisory
           </Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
@@ -69,6 +72,12 @@ function App() {
                 onClick={() => setActiveTab('soil')}
               >
                 🌱 Soil Type
+              </Nav.Link>
+              <Nav.Link 
+                className={activeTab === 'crophealth' ? 'active' : ''}
+                onClick={() => setActiveTab('crophealth')}
+              >
+                🩺 Crop Health
               </Nav.Link>
             </Nav>
           </Navbar.Collapse>
