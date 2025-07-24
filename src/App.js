@@ -1,9 +1,5 @@
 import React, { useState } from 'react';
-import { Navbar, Nav, Container, Row, Col } from 'react-bootstrap';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import './App.css';
-
-// Import components
+import { Container, Navbar, Nav, Row, Col } from 'react-bootstrap';
 import FertilizerChat from './components/FertilizerChat';
 import WeatherForecast from './components/WeatherForecast';
 import DeforestationInfo from './components/DeforestationInfo';

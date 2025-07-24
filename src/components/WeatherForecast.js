@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import { Card, Form, Button, Row, Col, Spinner, Alert } from 'react-bootstrap';
+import { MapContainer, TileLayer, Marker, useMapEvents, Rectangle } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
 import './WeatherForecast.css';
 
 function WeatherForecast() {
@@ -62,6 +65,7 @@ function WeatherForecast() {
         const timeseries = data.properties.timeseries;
         const dailyData = {};
         timeseries.forEach((item, index) => {
+            // Only process up to the selected number of days
             if (index < days * 24) {
                 const time = new Date(item.time);
                 const dateKey = time.toLocaleDateString();
@@ -107,6 +111,7 @@ function WeatherForecast() {
                 });
             }
         });
+        // Only return up to the selected number of days
         return formattedData.slice(0, days);
     };
 
@@ -119,6 +124,53 @@ function WeatherForecast() {
         if (temp > 5) return '🌤️';
         return '❄️';
     };
+
+    const getLocationName = (lat, lon) => {
+        const locations = {
+            '-1.2921,36.8219': 'Nairobi, Kenya',
+            '13.404954,52.520008': 'Berlin, Germany',
+            '51.5074,-0.1278': 'London, UK',
+            '40.7128,-74.0060': 'New York, USA',
+            '35.6762,139.6503': 'Tokyo, Japan'
+        };
+        const key = `${lat},${lon}`;
+        return locations[key] || `${lat}, ${lon}`;
+    };
+
+    // Custom marker icon for leaflet (fixes default icon issue)
+    const markerIcon = new L.Icon({
+        iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+        shadowSize: [41, 41]
+    });
+
+    // Ethiopia bounding box
+    const ETHIOPIA_BOUNDS = [
+        [3.3, 32.9],   // Southwest
+        [14.9, 48.0]   // Northeast
+    ];
+
+    // Helper to check if lat/lon is within Ethiopia
+    function isWithinEthiopia(lat, lon) {
+        return lat >= 3.3 && lat <= 14.9 && lon >= 32.9 && lon <= 48.0;
+    }
+
+    // Map click handler component
+    function LocationMarker() {
+        useMapEvents({
+            click(e) {
+                if (isWithinEthiopia(e.latlng.lat, e.latlng.lng)) {
+                    setCoordinates({ lat: e.latlng.lat, lon: e.latlng.lng });
+                }
+            },
+        });
+        return coordinates && isWithinEthiopia(coordinates.lat, coordinates.lon) ? (
+            <Marker position={[coordinates.lat, coordinates.lon]} icon={markerIcon} />
+        ) : null;
+    }
 
     return (
         <div className="content-container">
