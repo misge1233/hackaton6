@@ -41,7 +41,9 @@ Smallholder farmers and agricultural stakeholders often lack timely, location-sp
    node server.js
    ```
 5. **Start the development server:**
+go to project folder
    ```bash
+   cd openepi_hackaton
    npm start
    ```
 6. **Open the app:**
