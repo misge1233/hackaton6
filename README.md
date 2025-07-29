@@ -31,9 +31,9 @@ Smallholder farmers and agricultural stakeholders often lack timely, location-sp
    ```
 3. **Set up environment variables:**
    - Create a `.env` file in the root directory (if required)
-   - Add your Groq API key:
+   - Add your Groq API:
      ```env
-     GROQ_API_KEY=your_groq_api_key_here
+     REACT_APP_GROQ_API=your_groq_api_key_here
      ```
 4. **Start the backend server:**
    ```bash

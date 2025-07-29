@@ -5,7 +5,7 @@ import { MapContainer, TileLayer, Marker, Rectangle, useMapEvents } from 'react-
 import L from 'leaflet';
 
 // Use environment variable for Groq API keys
-const GROQ_API_KEY = process.env.REACT_APP_GROQ_API_KEY; // Set this in your .env file
+const GROQ_API_KEY = process.env.REACT_APP_GROQ_API; // Set this in your .env file
 
 function FertilizerChat() {
     const [messages, setMessages] = useState([]);
