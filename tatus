@@ -1,0 +1,10 @@
+[33mad7cf0b[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m conflict resolved
+[33me9a8263[m readme updated
+[33mc54cff1[m readme update
+[33m1b0eee2[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m env related gitignore
+[33maa640ed[m some chages anfter conflict resolution
+[33mba4b8a4[m Resolve all merge conflicts by keeping local (HEAD) version
+[33mb2be5c7[m Save local changes before merging with remote
+[33mcb80bff[m soil and flood modified
+[33ma994b09[m Remove node_modules and cache from repo
+[33m6eb757b[m Add project files excluding nested repo
