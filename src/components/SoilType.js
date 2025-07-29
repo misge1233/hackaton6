@@ -6,15 +6,39 @@ function SoilType() {
     const [soilData, setSoilData] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [location, setLocation] = useState('Nekemte');
     const [coordinates, setCoordinates] = useState({ lat: 60.1, lon: 9.58 });
+    const [geocoding, setGeocoding] = useState(false);
 
     const handleGetData = async () => {
         setLoading(true);
         setError(null);
         setSoilData(null);
-
+        setGeocoding(true);
         try {
-            const response = await fetch(`/api/soil?lat=${coordinates.lat}&lon=${coordinates.lon}`);
+            // 1. Geocode location name
+            const geoRes = await fetch(`/api/geocode?q=${encodeURIComponent(location)}`);
+            const geoResult = await geoRes.json();
+            if (
+                geoResult.error ||
+                !geoResult.data ||
+                !geoResult.data.features ||
+                !Array.isArray(geoResult.data.features) ||
+                geoResult.data.features.length === 0
+            ) {
+                setError('Could not find coordinates for the specified location.');
+                setGeocoding(false);
+                setLoading(false);
+                return;
+            }
+            // Use first result's coordinates: [lon, lat]
+            const coords = geoResult.data.features[0].geometry.coordinates;
+            const lat = coords[1];
+            const lon = coords[0];
+            setCoordinates({ lat, lon });
+            setGeocoding(false);
+            // 2. Fetch soil data
+            const response = await fetch(`/api/soil?lat=${lat}&lon=${lon}`);
             const result = await response.json();
             const { data, error: apiError } = result;
             if (apiError) {
@@ -26,6 +50,7 @@ function SoilType() {
             setError(`Failed to fetch soil data: ${err.message}`);
         } finally {
             setLoading(false);
+            setGeocoding(false);
         }
     };
 
@@ -236,50 +261,45 @@ function SoilType() {
                     <p className="text-muted">Analyze soil properties and get farming recommendations</p>
                 </Card.Header>
                 <Card.Body>
-                    <Row className="mb-4">
-                        <Col md={6}>
-                            <Form.Group className="mb-3">
-                                <Form.Label>Latitude</Form.Label>
-                                <Form.Control
-                                    type="number"
-                                    step="any"
-                                    value={coordinates.lat}
-                                    onChange={(e) => setCoordinates(prev => ({ ...prev, lat: parseFloat(e.target.value) }))}
-                                    placeholder="Enter latitude"
-                                />
-                            </Form.Group>
-                        </Col>
-                        <Col md={6}>
-                            <Form.Group className="mb-3">
-                                <Form.Label>Longitude</Form.Label>
-                                <Form.Control
-                                    type="number"
-                                    step="any"
-                                    value={coordinates.lon}
-                                    onChange={(e) => setCoordinates(prev => ({ ...prev, lon: parseFloat(e.target.value) }))}
-                                    placeholder="Enter longitude"
-                                />
-                            </Form.Group>
-                        </Col>
-                    </Row>
-
-                    <div className="text-center mb-4">
-                        <Button 
-                            variant="primary" 
-                            onClick={handleGetData}
-                            disabled={loading}
-                            size="lg"
-                        >
-                            {loading ? (
-                                <>
-                                    <Spinner animation="border" size="sm" className="me-2" />
-                                    Loading...
-                                </>
-                            ) : (
-                                'Analyze Soil'
-                            )}
-                        </Button>
-                    </div>
+                    <Form className="mb-4" onSubmit={e => { e.preventDefault(); handleGetData(); }}>
+                        <Row className="align-items-end">
+                            <Col md={8} sm={12} className="mb-2">
+                                <Form.Group>
+                                    <Form.Label>Location Name</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        value={location}
+                                        onChange={e => setLocation(e.target.value)}
+                                        placeholder="Enter city, town, or place name (e.g., Nekemte, Berlin)"
+                                        disabled={loading || geocoding}
+                                    />
+                                </Form.Group>
+                                {coordinates && (
+                                    <div className="selected-coords">
+                                        Selected Coordinates: <span style={{fontWeight:'bold'}}>{coordinates.lat.toFixed(5)}, {coordinates.lon.toFixed(5)}</span>
+                                    </div>
+                                )}
+                            </Col>
+                            <Col md={4} sm={12} className="mb-2 d-flex align-items-end">
+                                <Button
+                                    variant="primary"
+                                    type="submit"
+                                    disabled={loading || geocoding}
+                                    size="lg"
+                                    className="w-100"
+                                >
+                                    {(loading || geocoding) ? (
+                                        <>
+                                            <Spinner animation="border" size="sm" className="me-2" />
+                                            Loading...
+                                        </>
+                                    ) : (
+                                        'Analyze Soil'
+                                    )}
+                                </Button>
+                            </Col>
+                        </Row>
+                    </Form>
 
                     {error && (
                         <Alert variant="danger" className="mb-4">

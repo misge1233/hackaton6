@@ -185,8 +185,6 @@
     to { text-shadow: 0 0 10px rgba(255, 193, 7, 0.8); }
 }
 
-
-
 .loading-spinner {
     display: flex;
     flex-direction: column;
@@ -201,8 +199,6 @@
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
 }
-
-
 
 .no-thresholds-icon {
     font-size: 3rem;
